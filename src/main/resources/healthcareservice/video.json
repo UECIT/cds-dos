@@ -1,0 +1,10 @@
+{
+    "id": 1,
+    "endpoints": [{
+        "id": 1,
+        "address": "fhir/Slot?Schedule.HealthcareService=1"
+    }],
+    "active": true,
+    "name": "video",
+    "appointmentRequired": true
+}
