@@ -1,15 +1,12 @@
 package uk.nhs.cdss.resourceProviders;
 
-import ca.uhn.fhir.rest.annotation.RequiredParam;
-import ca.uhn.fhir.rest.annotation.Search;
-import ca.uhn.fhir.rest.param.ReferenceParam;
-import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
+import ca.uhn.fhir.rest.annotation.Operation;
+import ca.uhn.fhir.rest.annotation.OperationParam;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.HealthcareService;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
-import org.hl7.fhir.dstu3.model.ResourceType;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.service.HealthcareServiceService;
 
@@ -19,12 +16,9 @@ public class HealthcareServiceProvider {
 
   private HealthcareServiceService healthcareServiceService;
 
-  @Search(type = HealthcareService.class)
+  @Operation(name = "$check-services", type = HealthcareService.class)
   public Bundle searchForHealthcareServices(
-      @RequiredParam(name = ReferralRequest.SP_SUBJECT) ReferenceParam referralRequestParam) {
-    if (!referralRequestParam.getResourceType().equals(ResourceType.ReferralRequest.name())) {
-      throw new InvalidRequestException("Resource type for 'subject' must be 'ReferralRequest'");
-    }
+      @OperationParam(name = "referralRequest") ReferralRequest referralRequest) {
 
     Bundle bundle = new Bundle();
     healthcareServiceService.getAll().stream()
