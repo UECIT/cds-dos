@@ -2,7 +2,7 @@
     "id": 2,
     "endpoints": [{
         "id": 1,
-        "address": "http://emstestharness-ems-care-advice.eu-west-2.elasticbeanstalk.com/"
+        "address": "http://emstestharness-ems-care-advice.eu-west-2.elasticbeanstalk.com/report"
     }],
     "active": true,
     "name": "Written",

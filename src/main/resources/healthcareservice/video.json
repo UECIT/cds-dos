@@ -2,7 +2,7 @@
     "id": 1,
     "endpoints": [{
         "id": 1,
-        "address": "http://localhost:5000"
+        "address": "http://localhost:5000/report"
     }],
     "active": true,
     "name": "Video",
