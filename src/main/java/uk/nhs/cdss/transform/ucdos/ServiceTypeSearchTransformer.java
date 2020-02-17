@@ -11,19 +11,24 @@ public class ServiceTypeSearchTransformer {
 
   private AgeGroupTransformer ageGroupTransformer;
   private GenderTransformer genderTransformer;
+  private OdsCodeTransformer odsCodeTransformer;
 
   public ServiceTypeSearch transform(CheckServicesInputBundle inputBundle) {
-    return ServiceTypeSearch.builder()
-        .caseId(inputBundle.getRequestId())
+    var builder = ServiceTypeSearch.builder()
+        .caseId("TEST")
         .searchDistance(inputBundle.getSearchDistance())
-        .postcode(inputBundle.getPatient().getAddressFirstRep().getPostalCode())
-//        .gpPracticeId() TODO: What goes here?
-        .age(ageGroupTransformer.transform(inputBundle.getPatient().getBirthDate()))
+        .postcode(inputBundle.getLocation().getAddress().getPostalCode())
+        .age(ageGroupTransformer.transform(inputBundle.getPatient().getBirthDate()).intValue())
         .gender(genderTransformer.transform(inputBundle.getPatient().getGender()))
-        .serviceTypes(new int[]{15}) //TODO: Should we have logic to decide this?
-        .numberPerType(100) //??
-        .build();
+        .serviceTypes(new int[]{15}) //TODO: add tickets to do this
+        .numberPerType(100); //??
 
+    if (inputBundle.getRegisteredGp() != null) {
+      // SYMBOL: represents calling the UCDOS byODSCode REST API and using the result
+      builder = builder.gpPracticeId(
+          odsCodeTransformer.transform(inputBundle.getRegisteredGp()).hashCode());
+    }
+
+    return builder.build();
   }
-
 }

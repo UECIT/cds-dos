@@ -7,7 +7,7 @@ import uk.nhs.cdss.util.DateUtil;
 @Component
 public class AgeGroupTransformer {
 
-  public Integer transform(Date dob) {
+  public Short transform(Date dob) {
     if (dob == null) {
       return null;
     }
