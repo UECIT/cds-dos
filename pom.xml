@@ -112,6 +112,11 @@
       <version>1.18.10</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-xml</artifactId>
+      <version>2.9.8</version>
+    </dependency>
 
     <!-- Test -->
     <dependency>
@@ -129,11 +134,47 @@
     </dependency>
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>java11</id>
+      <activation>
+        <jdk>[11,)</jdk>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.glassfish.jaxb</groupId>
+          <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+        <version>0.14.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <schemaLanguage>WSDL</schemaLanguage>
+          <generatePackage>uk.nhs.cdss.model.ucdos.wsdl</generatePackage>
+          <schemaDirectory>src/main/resources/wsdl</schemaDirectory>
+          <schemaIncludes>
+            <include>*.wsdl</include>
+          </schemaIncludes>
+        </configuration>
       </plugin>
     </plugins>
     <finalName>${project.artifactId}</finalName>
