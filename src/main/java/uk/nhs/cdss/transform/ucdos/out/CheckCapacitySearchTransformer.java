@@ -1,9 +1,10 @@
-package uk.nhs.cdss.transform.ucdos;
+package uk.nhs.cdss.transform.ucdos.out;
 
 import java.util.Date;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.Transformer;
 import org.springframework.stereotype.Component;
-import uk.nhs.cdss.model.CheckServicesInputBundle;
+import uk.nhs.cdss.model.InputBundle;
 import uk.nhs.cdss.model.ucdos.SymptomDiscriminator;
 import uk.nhs.cdss.model.ucdos.SymptomGroup;
 import uk.nhs.cdss.model.ucdos.wsdl.AgeFormatType;
@@ -15,13 +16,14 @@ import uk.nhs.cdss.model.ucdos.wsdl.UserInfo;
 
 @Component
 @AllArgsConstructor
-public class CheckCapacitySearchTransformer {
+public class CheckCapacitySearchTransformer
+    implements Transformer<InputBundle, CheckCapacitySummary> {
 
   private AgeGroupTransformer ageGroupTransformer;
   private GenderTransformer genderTransformer;
   private OdsCodeTransformer odsCodeTransformer;
 
-  public CheckCapacitySummary transform(CheckServicesInputBundle inputBundle) {
+  public CheckCapacitySummary transform(InputBundle inputBundle) {
     var request = new CheckCapacitySummary();
 
     request.setUserInfo(getUserInfo());
@@ -37,7 +39,7 @@ public class CheckCapacitySearchTransformer {
     return userInfoElement;
   }
 
-  private Case transformCase(CheckServicesInputBundle inputBundle) {
+  private Case transformCase(InputBundle inputBundle) {
     var patient = inputBundle.getPatient();
     var caseElement = new Case();
 
