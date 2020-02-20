@@ -13,14 +13,9 @@ public class EndpointTransformer implements Transformer<List<Endpoint>, List<Res
   @Override
   public List<Resource> transform(List<Endpoint> from) {
     return from.stream()
-        .map(endpoint -> {
-            org.hl7.fhir.dstu3.model.Endpoint ep = new org.hl7.fhir.dstu3.model.Endpoint();
-
-            ep.setId("#" + endpoint.getId());
-            ep.setAddress(endpoint.getAddress());
-
-            return ep;
-        })
+        .map(endpoint -> new org.hl7.fhir.dstu3.model.Endpoint()
+            .setAddress(endpoint.getAddress())
+            .setId("#" + endpoint.getId()))
         .collect(Collectors.toList());
   }
 }

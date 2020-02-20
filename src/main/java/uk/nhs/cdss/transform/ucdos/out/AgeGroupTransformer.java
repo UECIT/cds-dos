@@ -1,11 +1,12 @@
-package uk.nhs.cdss.transform.ucdos;
+package uk.nhs.cdss.transform.ucdos.out;
 
 import java.util.Date;
+import org.apache.commons.collections4.Transformer;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.util.DateUtil;
 
 @Component
-public class AgeGroupTransformer {
+public class AgeGroupTransformer implements Transformer<Date, Short> {
 
   public Short transform(Date dob) {
     if (dob == null) {

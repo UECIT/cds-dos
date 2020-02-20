@@ -10,7 +10,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 
 @Value
 @Builder
-public class CheckServicesInputBundle {
+public class InputBundle {
 
   ReferralRequest referralRequest;
   Patient patient;

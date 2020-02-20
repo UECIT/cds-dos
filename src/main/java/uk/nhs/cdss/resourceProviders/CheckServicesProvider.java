@@ -6,8 +6,6 @@ import ca.uhn.fhir.rest.param.NumberParam;
 import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import org.hl7.fhir.dstu3.model.BooleanType;
-import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Location;
 import org.hl7.fhir.dstu3.model.Organization;
@@ -17,7 +15,8 @@ import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.stereotype.Component;
-import uk.nhs.cdss.model.CheckServicesInputBundle;
+import uk.nhs.cdss.builder.ParametersBuilder;
+import uk.nhs.cdss.model.InputBundle;
 import uk.nhs.cdss.service.HealthcareServiceService;
 import uk.nhs.cdss.service.UCDOSService;
 
@@ -52,7 +51,7 @@ public class CheckServicesProvider {
         .map(BooleanType::booleanValue)
         .orElse(false);
 
-    var input = CheckServicesInputBundle.builder()
+    var input = InputBundle.builder()
         .referralRequest(referralRequest)
         .patient(patient)
         .requestId(requestId != null ? requestId.getValue() : null)
@@ -65,17 +64,16 @@ public class CheckServicesProvider {
 
     ucdosService.invokeUCDOS(input);
 
-    var returnedServices = new Bundle();
+    var returnedServices = new Parameters();
     healthcareServiceService.getAll().stream()
-        .map(service -> new BundleEntryComponent().setResource(service))
-        .forEach(returnedServices::addEntry);
+        .map(service -> new ParametersParameterComponent()
+            .setName(service.getId())
+            .addPart()
+              .setName("service")
+              .setResource(service))
+        .forEach(returnedServices::addParameter);
 
-    var outputParameters = new Parameters();
 
-    var wrappingParameters = new Parameters();
-    wrappingParameters.addParameter().setName("return").setResource(returnedServices);
-    wrappingParameters.addParameter().setName("outputParameters").setResource(outputParameters);
-
-    return wrappingParameters;
+    return new ParametersBuilder().add("services", returnedServices).build();
   }
 }
