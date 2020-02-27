@@ -33,6 +33,7 @@ public class ServiceParameterTransformer
         .addPart(servicePart)
         .addPart(distancePart)
         .addPart(capacityRagPart)
-        .addPart(capacityHumanPart);
+        .addPart(capacityHumanPart)
+        .addPart(capacityHexPart);
   }
 }

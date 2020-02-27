@@ -2,7 +2,6 @@ package uk.nhs.cdss.transform.ucdos.in;
 
 import static java.util.Collections.singletonList;
 
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +16,7 @@ import org.hl7.fhir.dstu3.model.Parameters;
 import org.hl7.fhir.dstu3.model.Parameters.ParametersParameterComponent;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.builder.ParametersBuilder;
+import uk.nhs.cdss.constants.Systems;
 import uk.nhs.cdss.model.enums.Rag;
 import uk.nhs.cdss.model.ucdos.wsdl.AgeRange;
 import uk.nhs.cdss.model.ucdos.wsdl.ArrayOfServiceAgeRanges;
@@ -32,6 +32,7 @@ import uk.nhs.cdss.transform.ucdos.in.bundle.LocationBundle;
 import uk.nhs.cdss.transform.ucdos.in.bundle.ServiceParameterBundle;
 import uk.nhs.cdss.transform.ucdos.in.bundle.ServiceTypeBundle;
 import uk.nhs.cdss.transform.ucdos.in.bundle.TelecomBundle;
+import uk.nhs.cdss.util.NaivePeriod;
 
 @Component
 @RequiredArgsConstructor
@@ -47,14 +48,17 @@ public class CheckCapacityResponseTransformer
 
   @Override
   public Parameters transform(CheckCapacitySummaryResponse from) {
-    var outputParameters = new ParametersBuilder()
+    var outputParametersBuilder = new ParametersBuilder()
         .add("TransactionID", from.getTransactionId())
         .add("RequestedAtDateTime", from.getRequestedAtDateTime())
         .add("SearchDateTime", from.getSearchDateTime())
-        .add("SearchDistanceUsedSource", from.getSearchDistance())
-        .add("SearchDistanceUsedSource", from.getSearchDistanceUsedSource().value())
-        .add("CalculatedAgeInDays", from.getCalculatedAgeInDays().longValue())
-        .build();
+        .add("SearchDistance", from.getSearchDistance())
+        .add("SearchDistanceUsedSource", from.getSearchDistanceUsedSource().value());
+    if (from.getCalculatedAgeInDays() != null) {
+      outputParametersBuilder.add(
+          "CalculatedAgeInDays",
+          from.getCalculatedAgeInDays().longValue());
+    }
 
     var services = new Parameters();
     from.getCheckCapacitySummaryResult()
@@ -65,14 +69,14 @@ public class CheckCapacityResponseTransformer
 
     return new ParametersBuilder()
         .add("services", services)
-        .add("outputParameters", outputParameters)
+        .add("outputParameters", outputParametersBuilder.build())
         .build();
   }
 
   private ParametersParameterComponent transformService(ServiceCareSummaryDestination destination) {
     var service = new HealthcareService();
 
-    service.addIdentifier().setSystem("DoS").setValue(Integer.toString(destination.getId()));
+    service.addIdentifier().setSystem(Systems.ODS).setValue(Integer.toString(destination.getId()));
     service.setName(destination.getName());
     service.addProgramName(destination.getPublicName());
     service.setComment(destination.getPublicFacingInformation());
@@ -124,16 +128,9 @@ public class CheckCapacityResponseTransformer
   }
 
   private String transformAgeRange(AgeRange range) {
-    var start = Period.ofDays((int) range.getDaysFrom());
-    var end = Period.ofDays((int) range.getDaysTo());
-    return String.format(
-        "%d years, %d months, %d days old to %d years, %d months, %d days old",
-        start.getYears(),
-        start.getMonths(),
-        start.getDays(),
-        end.getYears(),
-        end.getMonths(),
-        end.getDays());
+    var start = NaivePeriod.ofDays((int) range.getDaysFrom());
+    var end = NaivePeriod.ofDays((int) range.getDaysTo());
+    return String.format("%s old to %s old", start.toDateString(), end.toDateString());
   }
 
   private List<HealthcareServiceAvailableTimeComponent> transformAvailability(
