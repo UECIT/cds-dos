@@ -17,7 +17,7 @@ public class Service {
   private String website;
   private List<OpeningTimeRota> openingTimeRotas;
   private ReferralInstructions referralInstructions;
-  private CapacityStatus capacityStatus;
   private List<String> endpoints;
+  private CapacityStatus capacityStatus;
   private float distanceFromPatient;
 }

@@ -11,6 +11,7 @@ import org.hl7.fhir.dstu3.model.Parameters;
 import org.hl7.fhir.dstu3.model.Parameters.ParametersParameterComponent;
 import org.springframework.stereotype.Component;
 import uk.nhs.cdss.builder.ParametersBuilder;
+import uk.nhs.cdss.constants.Systems;
 import uk.nhs.cdss.model.ucdos.DosRestResponse;
 import uk.nhs.cdss.model.ucdos.OpeningTime;
 import uk.nhs.cdss.model.ucdos.OpeningTimeRota;
@@ -58,7 +59,7 @@ public class DosRestResponseTransformer implements Transformer<DosRestResponse, 
   private ParametersParameterComponent transformService(Service from) {
     var service = new HealthcareService();
 
-    service.addIdentifier().setSystem("DoS").setValue(from.getServiceId());
+    service.addIdentifier().setSystem(Systems.ODS).setValue(from.getServiceId());
     service.setName(from.getServiceName());
     service.addType(serviceTypeTransformer.transform(new ServiceTypeBundle(from.getServiceType())));
     service.setProvidedByTarget(odsOrganisationTransformer.transform(from.getOdsCode()));
@@ -113,7 +114,9 @@ public class DosRestResponseTransformer implements Transformer<DosRestResponse, 
     var availableTime = new HealthcareServiceAvailableTimeComponent();
 
     availableTime.setAllDay(rota.isOpenAllHours());
-    availableTime.addDaysOfWeek(DaysOfWeek.fromCode(rota.getDay()));
+    if (rota.getDay() != null) {
+      availableTime.addDaysOfWeek(DaysOfWeek.fromCode(rota.getDay().toLowerCase().substring(0, 3)));
+    }
     availableTime.setAvailableStartTime(transformTime(rota.getSession().getStart()));
     availableTime.setAvailableEndTime(transformTime(rota.getSession().getEnd()));
 
